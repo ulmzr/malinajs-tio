@@ -1,6 +1,6 @@
 # Malina-tio
 
-NPM package for [malina two-in-one template](https://github.com/ulmzr/malina-tio-template).
+Package for [malina two-in-one template](https://github.com/ulmzr/malina-tio-template).
 
 ## Feature
 
