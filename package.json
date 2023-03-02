@@ -1,6 +1,6 @@
 {
    "name": "malina-tio",
-   "version": "1.0.2",
+   "version": "1.0.3",
    "description": "Malina two-in-one package.",
    "main": "index.js",
    "scripts": {
