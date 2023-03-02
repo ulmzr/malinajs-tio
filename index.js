@@ -11,6 +11,7 @@ if (DEV || PROD || BUILD) {
    const configPath = join(cwd, "tio.config.js");
    const config = existsSync(configPath) ? require(configPath) : {};
    //
+
    const publicDir = config.publicDir || "public";
    const fastifyConfig = config.fastify || {};
    const foptions = fastifyConfig.options || {};
@@ -87,12 +88,12 @@ if (DEV || PROD || BUILD) {
 
    // Load plugins
    fastify.register(require("@fastify/autoload"), {
-      dir: join(cwd, plugins),
+      dir: join(__dirname, plugins),
    });
 
    // Load routes
    fastify.register(require("@fastify/autoload"), {
-      dir: join(cwd, routes),
+      dir: join(__dirname, routes),
       options: {
          prefix: "/api",
       },
@@ -103,7 +104,7 @@ if (DEV || PROD || BUILD) {
          // Compile & bundle script
          const esbuild = require("esbuild");
          ctx = await esbuild.context({
-            entryPoints: [`src/main.js`],
+            entryPoints: [`src/index.js`],
             minify: BUILD ? true : false,
             bundle: true,
             format: "esm",
@@ -112,7 +113,7 @@ if (DEV || PROD || BUILD) {
             ...esbuildConfig,
          });
 
-         await ctx.watch();
+         await ctx.rebuild();
 
          if (BUILD) await ctx.dispose();
       } catch (error) {
@@ -165,17 +166,30 @@ if (DEV || PROD || BUILD) {
          .watch(["src", publicDir], {
             ignored: /(^|[\/\\])\../,
             persistent: true,
-            cwd: process.cwd(),
+            cwd: __dirname,
          })
          .on("change", async (fpath) => {
+            if (!socket) return;
             fpath = fpath.replace(/(\\\\|\\)/g, "/");
-            const inPublicDir = fpath.includes(`${publicDir}`);
-            if (socket && ctx)
-               if (inPublicDir)
-                  !fpath.match(/^.*\.(css)$/)
-                     ? socket.send("reload")
-                     : socket.send("hot");
-               else fpath.match(/^.*\.(scss|css)$/) && (await ctx.rebuild());
+            const inSrcDir = fpath.includes(`src/`);
+            const inPublicDir = fpath.includes(`${publicDir}/`);
+            if (inSrcDir) {
+               if (fpath.match(/^.*\.(scss|css)$/)) {
+                  console.log("Style in src change");
+                  await ctx.rebuild();
+                  socket.send("hot");
+                  return;
+               }
+            }
+            if (inPublicDir) {
+               if (fpath.match(/^.*\.(scss|css)$/)) {
+                  socket.send("hot");
+                  return;
+               }
+            }
+
+            await ctx.rebuild();
+            socket.send("reload");
          });
    }
 } else {

@@ -1,6 +1,6 @@
 {
    "name": "malinajs-tio",
-   "version": "1.0.4",
+   "version": "1.0.5",
    "description": "Malina two-in-one package.",
    "main": "index.js",
    "scripts": {
@@ -23,12 +23,13 @@
       "esbuild": "^0.17.10",
       "fastify": "^4.13.0",
       "fastify-plugin": "^4.5.0",
+      "node-sass": "^8.0.0",
       "pino-pretty": "^9.4.0",
+      "sass": "^1.58.3",
       "ws": "^8.12.1"
    },
    "devDependencies": {
-      "malinajs": "^0.6.64",
-      "sass": "^1.58.3"
+      "malinajs": "^0.6.64"
    },
    "author": "Yulmizar",
    "license": "MIT",
