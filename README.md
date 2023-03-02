@@ -1,6 +1,6 @@
-# Malina-tio
+# MalinaJS Two in One
 
-Package for [malina two-in-one template](https://github.com/ulmzr/malina-tio-template).
+Package for [malinajs two-in-one template](https://github.com/ulmzr/malinajs-tio-template).
 
 ## Feature
 
@@ -13,4 +13,4 @@ Package for [malina two-in-one template](https://github.com/ulmzr/malina-tio-tem
 ## Todo
 
 -  Error handling for spawn error process in development server
--  Add autoroute for malina
+-  Add autoroute for malinajs
