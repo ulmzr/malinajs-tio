@@ -1,0 +1,40 @@
+{
+   "name": "malina-tio",
+   "version": "1.0.0",
+   "description": "Malina two-in-one package.",
+   "main": "index.js",
+   "scripts": {
+      "test": "echo \"Error: no test specified\" && exit 1"
+   },
+   "repository": {
+      "type": "git",
+      "url": "git+https://github.com/ulmzr/malina-tio.git"
+   },
+   "keywords": [
+      "malina",
+      "malinajs",
+      "esbuild",
+      "fastify"
+   ],
+   "dependencies": {
+      "@fastify/autoload": "^5.0.0",
+      "child_process": "^1.0.2",
+      "chokidar": "^3.5.3",
+      "fastify": "^4.0.0",
+      "fastify-plugin": "^4.0.0",
+      "pino-pretty": "^9.4.0",
+      "pretty-error": "^4.0.0",
+      "ws": "^8.12.1"
+   },
+   "devDependencies": {
+      "esbuild": "^0.17.10",
+      "malinajs": "^0.6.64",
+      "sass": "^1.58.3"
+   },
+   "author": "Yulmizar",
+   "license": "MIT",
+   "bugs": {
+      "url": "https://github.com/ulmzr/malina-tio/issues"
+   },
+   "homepage": "https://github.com/ulmzr/malina-tio#readme"
+}
