@@ -1,6 +1,6 @@
 {
    "name": "malina-tio",
-   "version": "1.0.0",
+   "version": "1.0.1",
    "description": "Malina two-in-one package.",
    "main": "index.js",
    "scripts": {
@@ -17,17 +17,16 @@
       "fastify"
    ],
    "dependencies": {
-      "@fastify/autoload": "^5.0.0",
+      "@fastify/autoload": "^5.7.1",
       "child_process": "^1.0.2",
       "chokidar": "^3.5.3",
-      "fastify": "^4.0.0",
-      "fastify-plugin": "^4.0.0",
+      "esbuild": "^0.17.10",
+      "fastify": "^4.13.0",
+      "fastify-plugin": "^4.5.0",
       "pino-pretty": "^9.4.0",
-      "pretty-error": "^4.0.0",
       "ws": "^8.12.1"
    },
    "devDependencies": {
-      "esbuild": "^0.17.10",
       "malinajs": "^0.6.64",
       "sass": "^1.58.3"
    },
