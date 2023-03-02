@@ -87,12 +87,12 @@ if (DEV || PROD || BUILD) {
 
    // Load plugins
    fastify.register(require("@fastify/autoload"), {
-      dir: join(__dirname, plugins),
+      dir: join(cwd, plugins),
    });
 
    // Load routes
    fastify.register(require("@fastify/autoload"), {
-      dir: join(__dirname, routes),
+      dir: join(cwd, routes),
       options: {
          prefix: "/api",
       },
