@@ -11,7 +11,6 @@ if (DEV || PROD || BUILD) {
    const configPath = join(cwd, "tio.config.js");
    const config = existsSync(configPath) ? require(configPath) : {};
    //
-
    const publicDir = config.publicDir || "public";
    const fastifyConfig = config.fastify || {};
    const foptions = fastifyConfig.options || {};
