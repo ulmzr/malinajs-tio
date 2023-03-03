@@ -113,7 +113,7 @@ if (DEV || PROD || BUILD) {
             ...esbuildConfig,
          });
 
-         await ctx.rebuild();
+         await ctx.watch();
 
          if (BUILD) await ctx.dispose();
       } catch (error) {
@@ -152,6 +152,7 @@ if (DEV || PROD || BUILD) {
       );
 
       // Start watching
+
       chokidar
          .watch([routes, plugins], {
             ignored: /(^|[\/\\])\../,
@@ -162,35 +163,44 @@ if (DEV || PROD || BUILD) {
             console.log("Reload Server...");
             process.exit();
          });
-      chokidar
-         .watch(["src", publicDir], {
-            ignored: /(^|[\/\\])\../,
-            persistent: true,
-            cwd: __dirname,
-         })
-         .on("change", async (fpath) => {
-            if (!socket) return;
-            fpath = fpath.replace(/(\\\\|\\)/g, "/");
-            const inSrcDir = fpath.includes(`src/`);
-            const inPublicDir = fpath.includes(`${publicDir}/`);
-            if (inSrcDir) {
-               if (fpath.match(/^.*\.(scss|css)$/)) {
-                  console.log("Style in src change");
-                  await ctx.rebuild();
-                  socket.send("hot");
-                  return;
-               }
-            }
-            if (inPublicDir) {
-               if (fpath.match(/^.*\.(scss|css)$/)) {
-                  socket.send("hot");
-                  return;
-               }
-            }
 
+      var hot;
+
+      const _src = chokidar.watch(["src"], {
+         ignored: /(^|[\/\\])\../,
+         persistent: true,
+         cwd: __dirname,
+      });
+
+      _src.on("change", async (path) => {
+         if (!socket) return;
+         hot = false;
+         path = path.replace(/(\\\\|\\)/g, "/");
+         if (path.match(/^.*\.(scss|css)$/)) {
+            hot = true;
             await ctx.rebuild();
-            socket.send("reload");
-         });
+         }
+      });
+
+      const _public = chokidar.watch([publicDir], {
+         ignored: /(^|[\/\\])\../,
+         persistent: true,
+         cwd: __dirname,
+      });
+
+      _public.on("change", (path) => {
+         if (!socket) return;
+         path = path.replace(/(\\\\|\\)/g, "/");
+         if (path.match(/^.*\.(scss|css)$/)) hot = true;
+         else hot = false;
+         socket.send(
+            JSON.stringify({
+               hot,
+               change: path.replace(publicDir, ""),
+            })
+         );
+         !hot && console.log("\nLive reload...!\n");
+      });
    }
 } else {
    const proc = () => {
@@ -232,10 +242,6 @@ const readFile = (filename, encoding) => {
       resolve(readFileSync(filename, encoding));
    });
 };
-
-function injectedScript() {
-   return `(()=>{var l="ws://localhost:35729",t=new WebSocket(l);t.onclose=()=>{let e=()=>{t=new WebSocket(l),t.onerror=()=>setTimeout(e,3e3),t.onopen=()=>location.reload()};e()};t.onmessage=e=>{if(e.data==="hot"){let n=document.querySelectorAll("head link[rel='stylesheet']");console.log(n.length),n&&n.forEach(o=>{let c=o.getAttribute("href").replace(/[\#\?].*$/,""),r=o.cloneNode();r.onload=()=>o.remove(),r.setAttribute("href",c+"?"+Math.random().toString(16).substr(-6)),o.parentNode.insertBefore(r,o.nextSibling)})}else e.data==="reload"&&location.reload()};})();`;
-}
 
 function malinaPlugin(options = {}) {
    const malina = require("malinajs");
@@ -284,4 +290,29 @@ function malinaPlugin(options = {}) {
          );
       },
    };
+}
+
+function injectedScript() {
+   return `
+const url = "ws://localhost:35729"
+var s = new WebSocket(url)
+s.onclose =_=> {
+   const run =_=> {
+      s = new WebSocket(url)
+      s.onerror =_=> setTimeout(run, 2000)
+      s.onopen =_=> location.reload()
+   };
+   run()
+}
+s.onmessage = e => {
+   const updated = JSON.parse(e.data)
+   if(!updated.hot)location.reload()
+   const link = document.querySelector('link[href*="' + updated.change + '"]')
+   if(!link) return 
+   const url = new URL(link.href)
+   const next = link.cloneNode()
+   next.onload =_=> link.remove()
+   next.href = url.pathname + "?" + Math.random().toString(16).substr(-6)
+   link.parentNode.insertBefore(next, link.nextSibling)
+}`;
 }
